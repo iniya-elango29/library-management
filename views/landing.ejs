@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library OS - Choose Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="center-flex" style="flex-direction: column;">
+    <div class="text-center mb-8 animate-fade-in">
+      <i class="fa-solid fa-layer-group mb-4" style="font-size: 3rem; color: var(--primary-color);"></i>
+      <h1>Library OS</h1>
+      <p class="text-muted" style="font-size: 1.2rem;">Please select your login portal to continue</p>
+    </div>
+
+    <div class="card-grid animate-fade-in" style="max-width: 800px; width: 100%; margin-top: 0; padding: 0 1rem;">
+      <!-- Student Portal Card -->
+      <a href="/login/student" class="glass-panel action-card" style="padding: 3rem 2rem;">
+        <i class="fa-solid fa-user-graduate" style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--secondary-color);"></i>
+        <h2 style="margin-bottom: 0.5rem;">Student Portal</h2>
+        <p>Access your borrowed books, due dates, and search the library catalog.</p>
+      </a>
+
+      <!-- Admin Portal Card -->
+      <a href="/login/admin" class="glass-panel action-card" style="padding: 3rem 2rem;">
+        <i class="fa-solid fa-user-tie" style="font-size: 4rem; margin-bottom: 1.5rem; color: var(--primary-color);"></i>
+        <h2 style="margin-bottom: 0.5rem;">Admin Portal</h2>
+        <p>Manage the book catalog, process returns, and oversee library statistics.</p>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

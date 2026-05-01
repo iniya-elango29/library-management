@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transactions - Library OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  
+  <header>
+    <a href="/dashboard" class="logo">
+      <i class="fa-solid fa-layer-group" style="color: var(--primary-color);"></i>
+      Library OS
+    </a>
+    <nav class="nav-links">
+      <a href="/dashboard"><i class="fa-solid fa-house mr-1"></i> Dashboard</a>
+      <a href="/books"><i class="fa-solid fa-book mr-1"></i> Books Catalog</a>
+      <a href="/transactions" style="color: #fff;"><i class="fa-solid fa-right-left mr-1"></i> Transactions</a>
+      <a href="/students"><i class="fa-solid fa-users mr-1"></i> Students</a>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</a>
+    </nav>
+  </header>
+
+  <div class="container animate-fade-in">
+    <div class="flex items-end mb-6" style="justify-content: space-between;">
+      <div>
+        <h1>Transactions</h1>
+        <p class="text-muted">Monitor all library book loans and returns.</p>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <label for="statusFilter" class="text-muted" style="margin: 0;">Filter:</label>
+        <select id="statusFilter" onchange="filterTable()" style="padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--surface-border); border-radius: 8px; color: #fff; outline: none;">
+          <option value="all" style="color: #000;">All Transactions</option>
+          <option value="issued" style="color: #000;">Issued Only</option>
+          <option value="returned" style="color: #000;">Returned Only</option>
+          <option value="overdue" style="color: #000;">Overdue</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fa-solid fa-user mr-2"></i> Student</th>
+            <th><i class="fa-solid fa-book-open mr-2"></i> Book</th>
+            <th><i class="fa-solid fa-calendar mr-2"></i> Issue Date</th>
+            <th><i class="fa-solid fa-calendar-check mr-2"></i> Due Date</th>
+            <th><i class="fa-solid fa-coins mr-2"></i> Fine</th>
+            <th><i class="fa-solid fa-circle-info mr-2"></i> Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (transactions && transactions.length > 0) { %>
+            <% transactions.forEach(txn => { %>
+            <% 
+              const due = new Date(txn.due_date);
+              let nowForCalc = new Date();
+              if (txn.status === 'returned') {
+                nowForCalc = new Date(txn.return_date);
+              }
+              
+              const dueTime = new Date(due.toDateString()).getTime();
+              const nowTime = new Date(nowForCalc.toDateString()).getTime();
+              const isLate = nowTime > dueTime && txn.status === 'issued';
+              
+              let fine = 0;
+              if (nowTime > dueTime && !txn.fine_paid) {
+                const daysLate = Math.floor((nowTime - dueTime) / (1000 * 60 * 60 * 24));
+                fine = daysLate * 10;
+              }
+            %>
+            <tr data-status="<%= txn.status %>" data-overdue="<%= isLate ? 'true' : 'false' %>">
+              <td style="font-weight: 500;"><%= txn.username %></td>
+              <td class="text-muted"><%= txn.title %></td>
+              <td><%= new Date(txn.issue_date).toLocaleDateString() %></td>
+              <td>
+                <span class="<%= isLate ? 'text-danger' : '' %>">
+                  <%= due.toLocaleDateString() %>
+                  <% if (isLate) { %>
+                    <i class="fa-solid fa-circle-exclamation ml-1" title="Overdue"></i>
+                  <% } %>
+                </span>
+              </td>
+              <td>
+                <% if (fine > 0) { %>
+                  <span class="text-danger" style="font-weight: 600;">$<%= fine %></span>
+                <% } else { %>
+                  <span>$<%= fine %></span>
+                <% } %>
+              </td>
+              <td>
+                <% if (txn.status === 'issued') { %>
+                  <span style="background: rgba(59, 130, 246, 0.2); color: var(--primary-color); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;">
+                    Issued
+                  </span>
+                <% } else if (txn.status === 'returned') { %>
+                  <span style="background: rgba(16, 185, 129, 0.2); color: var(--success-color); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;">
+                    Returned on <%= new Date(txn.return_date).toLocaleDateString() %>
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <% if (txn.status === 'issued') { %>
+                  <form action="/return-book" method="POST" style="margin: 0; display: inline-block;">
+                    <input type="hidden" name="transaction_id" value="<%= txn.id %>">
+                    <input type="hidden" name="book_id" value="<%= txn.book_id %>">
+                    <button type="submit" class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                      <i class="fa-solid fa-rotate-left mr-1"></i> Return
+                    </button>
+                  </form>
+                <% } else if (fine > 0) { %>
+                  <form action="/resolve-fine" method="POST" style="margin: 0; display: inline-block;">
+                    <input type="hidden" name="transaction_id" value="<%= txn.id %>">
+                    <button type="submit" class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; color: var(--success-color); border-color: var(--success-color);" title="Mark Fine as Paid">
+                      <i class="fa-solid fa-check mr-1"></i> Resolve Fine
+                    </button>
+                  </form>
+                <% } else if (txn.fine_paid) { %>
+                  <span class="text-muted" style="font-size: 0.8rem;"><i class="fa-solid fa-check-circle mr-1" style="color: var(--success-color);"></i>Fine Paid</span>
+                <% } else { %>
+                  <span class="text-muted">-</span>
+                <% } %>
+              </td>
+            </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="text-center text-muted" style="padding: 3rem;">
+                <i class="fa-solid fa-receipt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>No transaction history found.</p>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  function filterTable() {
+    const filter = document.getElementById('statusFilter').value;
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      if (!row.dataset.status) return;
+      const isOverdue = row.dataset.overdue === 'true';
+      const status = row.dataset.status;
+      if (filter === 'all') {
+        row.style.display = '';
+      } else if (filter === 'overdue') {
+        row.style.display = isOverdue ? '' : 'none';
+      } else {
+        row.style.display = status === filter ? '' : 'none';
+      }
+    });
+  }
+  </script>
+</body>
+</html>

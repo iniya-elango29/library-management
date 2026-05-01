@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students Directory - Library OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  
+  <header>
+    <a href="/dashboard" class="logo">
+      <i class="fa-solid fa-layer-group" style="color: var(--primary-color);"></i>
+      Library OS
+    </a>
+    <nav class="nav-links">
+      <a href="/dashboard"><i class="fa-solid fa-house mr-1"></i> Dashboard</a>
+      <a href="/books"><i class="fa-solid fa-book mr-1"></i> Books Catalog</a>
+      <a href="/transactions"><i class="fa-solid fa-right-left mr-1"></i> Transactions</a>
+      <a href="/students" style="color: #fff;"><i class="fa-solid fa-users mr-1"></i> Students</a>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</a>
+    </nav>
+  </header>
+
+  <div class="container animate-fade-in">
+    <div class="flex items-end mb-6" style="justify-content: space-between;">
+      <div>
+        <h1>Students Directory</h1>
+        <p class="text-muted">Manage registered students and their library access.</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th><i class="fa-solid fa-user mr-2"></i> Username</th>
+            <th><i class="fa-solid fa-envelope mr-2"></i> Email</th>
+            <th><i class="fa-solid fa-calendar mr-2"></i> Registered Date</th>
+            <th><i class="fa-solid fa-book-open mr-2"></i> Active Loans</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (students && students.length > 0) { %>
+            <% students.forEach(student => { %>
+            <tr>
+              <td style="font-weight: 500;"><%= student.username %></td>
+              <td class="text-muted"><%= student.email || 'N/A' %></td>
+              <td><%= new Date(student.created_at).toLocaleDateString() %></td>
+              <td>
+                <span style="background: rgba(59, 130, 246, 0.2); color: var(--primary-color); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;">
+                  <%= student.active_loans %>
+                </span>
+              </td>
+              <td>
+                <form action="/delete-student" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this student? This will also remove their transaction history.');">
+                  <input type="hidden" name="id" value="<%= student.id %>">
+                  <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem; color: var(--danger-color); border-color: var(--danger-color);">
+                    <i class="fa-solid fa-trash mr-1"></i> Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding: 3rem;">
+                <i class="fa-solid fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>No students found.</p>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  function showNotification(message, type = 'success') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color: var(--success-color)"></i>' : '<i class="fa-solid fa-circle-exclamation" style="color: var(--danger-color)"></i>';
+    toast.innerHTML = `${icon} <span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('notif')) {
+    showNotification(urlParams.get('notif'), urlParams.get('notif_type') || 'success');
+    const newUrl = window.location.pathname + window.location.search.replace(/[\?&]notif=[^&]+/, '').replace(/&notif_type=[^&]+/, '');
+    window.history.replaceState({}, document.title, newUrl);
+  }
+  </script>
+</body>
+</html>

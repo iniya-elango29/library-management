@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= portalType %> Login - Library OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="center-flex">
+    <div class="glass-panel login-box">
+      <div class="login-icon">
+        <% if (portalType === 'Admin') { %>
+          <i class="fa-solid fa-user-shield"></i>
+        <% } else { %>
+          <i class="fa-solid fa-user-graduate"></i>
+        <% } %>
+      </div>
+      <h2><%= portalType %> Login</h2>
+      <p class="text-muted mb-6">Sign in to your <%= portalType %> dashboard</p>
+      
+      <form action="/login" method="POST">
+        <input type="hidden" name="role" value="<%= portalType.toLowerCase() %>">
+        <div class="form-group text-left">
+          <label for="username"><i class="fa-solid fa-user mr-2"></i> Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+        <div class="form-group text-left mb-6">
+          <label for="password"><i class="fa-solid fa-lock mr-2"></i> Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-full">
+          Login <i class="fa-solid fa-arrow-right ml-2"></i>
+        </button>
+      </form>
+      
+      <p class="text-muted mt-4" style="margin-top: 1.5rem;">
+        <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+          <i class="fa-solid fa-arrow-left mr-1"></i> Back to Portals
+        </a>
+      </p>
+      
+      <% if (portalType === 'Student') { %>
+        <p class="text-muted mt-4" style="margin-top: 1rem;">
+          Don't have an account? <a href="/register" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Register here</a>
+        </p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

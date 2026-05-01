@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Library OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  
+  <header>
+    <a href="/dashboard" class="logo">
+      <i class="fa-solid fa-layer-group" style="color: var(--primary-color);"></i>
+      Library OS
+    </a>
+    <nav class="nav-links">
+      <a href="/dashboard" style="color: #fff;"><i class="fa-solid fa-house mr-1"></i> Dashboard</a>
+      <a href="/books"><i class="fa-solid fa-book mr-1"></i> Books Catalog</a>
+      <% if (user && user.role === 'admin') { %>
+        <a href="/transactions"><i class="fa-solid fa-right-left mr-1"></i> Transactions</a>
+        <a href="/students"><i class="fa-solid fa-users mr-1"></i> Students</a>
+      <% } %>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket mr-1"></i> Logout</a>
+    </nav>
+  </header>
+
+  <div class="container animate-fade-in">
+    <div class="glass-panel" style="padding: 3rem 2rem; margin-bottom: 2rem;">
+      <h1>Welcome back, <%= user.username %>!</h1>
+      <p class="text-muted" style="font-size: 1.1rem; max-width: 600px;">
+        <% if (user.role === 'admin') { %>
+          Manage your library's catalog, process returns, and oversee student activity from your centralized dashboard.
+        <% } else { %>
+          View your borrowed books, due dates, and explore the catalog to find your next great read.
+        <% } %>
+      </p>
+    </div>
+
+    <% if (user.role === 'admin') { %>
+      <h2>Library Overview</h2>
+      <div class="card-grid">
+        <div class="glass-panel action-card">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <h3><%= stats.totalBooks %></h3>
+          <p>Books in Catalog</p>
+        </div>
+        <div class="glass-panel action-card">
+          <i class="fa-solid fa-users"></i>
+          <h3><%= stats.totalStudents %></h3>
+          <p>Registered Students</p>
+        </div>
+        <div class="glass-panel action-card">
+          <i class="fa-solid fa-right-left"></i>
+          <h3><%= stats.activeLoans %></h3>
+          <p>Active Loans</p>
+        </div>
+      </div>
+    <% } else { %>
+      <% if (myBooks && myBooks.length > 0) { %>
+        <% 
+          const overdueBooks = myBooks.filter(book => {
+            const due = new Date(book.due_date);
+            const dueTime = new Date(due.toDateString()).getTime();
+            const nowTime = new Date(new Date().toDateString()).getTime();
+            return nowTime > dueTime;
+          });
+          if (overdueBooks.length > 0) { 
+        %>
+          <div class="glass-panel" style="background: rgba(239, 68, 68, 0.1); border-color: var(--danger-color); margin-bottom: 2rem;">
+            <h3 style="color: var(--danger-color); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Overdue Notice
+            </h3>
+            <p style="color: #f87171; margin: 0;">You have <%= overdueBooks.length %> overdue book(s). Please return them as soon as possible. A fine of $10 per day is applied to overdue books.</p>
+          </div>
+        <% } %>
+      <% } %>
+
+      <h2>My Borrowed Books</h2>
+      <div class="table-container mt-4">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-book-open mr-2"></i> Title</th>
+              <th><i class="fa-solid fa-pen-nib mr-2"></i> Author</th>
+              <th><i class="fa-solid fa-calendar mr-2"></i> Issue Date</th>
+              <th><i class="fa-solid fa-calendar-check mr-2"></i> Due Date</th>
+              <th><i class="fa-solid fa-coins mr-2"></i> Fine</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (myBooks && myBooks.length > 0) { %>
+              <% myBooks.forEach(book => { %>
+              <tr>
+                <td style="font-weight: 500;"><%= book.title %></td>
+                <td class="text-muted"><%= book.author %></td>
+                <td><%= new Date(book.issue_date).toLocaleDateString() %></td>
+                <td>
+                  <% 
+                    const due = new Date(book.due_date);
+                    const dueTime = new Date(due.toDateString()).getTime();
+                    const nowTime = new Date(new Date().toDateString()).getTime();
+                    const isLate = nowTime > dueTime;
+                  %>
+                  <span class="<%= isLate ? 'text-danger' : '' %>">
+                    <%= due.toLocaleDateString() %>
+                  </span>
+                </td>
+                <td>
+                  <% 
+                    let fine = 0;
+                    if (isLate) {
+                      const daysLate = Math.floor((nowTime - dueTime) / (1000 * 60 * 60 * 24));
+                      fine = daysLate * 10;
+                    }
+                  %>
+                  <% if (fine > 0) { %>
+                    <span class="text-danger" style="font-weight: 600;">$<%= fine %></span>
+                  <% } else { %>
+                    <span>$<%= fine %></span>
+                  <% } %>
+                </td>
+                <td>
+                  <span style="background: rgba(59, 130, 246, 0.2); color: var(--primary-color); padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.875rem; font-weight: 600;">
+                    Issued
+                  </span>
+                </td>
+                <td>
+                  <form action="/return-book-student" method="POST" style="margin: 0;">
+                    <input type="hidden" name="transaction_id" value="<%= book.id %>">
+                    <input type="hidden" name="book_id" value="<%= book.book_id %>">
+                    <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.875rem; color: var(--success-color); border-color: var(--success-color);">
+                      <i class="fa-solid fa-rotate-left mr-1"></i> Return
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="text-center text-muted" style="padding: 3rem;">
+                  <i class="fa-solid fa-book-journal-whills" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                  <p>You have no active book loans.</p>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+</body>
+</html>
