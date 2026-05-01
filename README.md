@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📚 Library Management System
 
 A full-stack **Library Management System** built using **Node.js,
@@ -129,3 +130,6 @@ GitHub: https://github.com/iniya-elango29
 ## 📄 License
 
 MIT License
+=======
+# library-management
+>>>>>>> 4ac5dc99d9b24c94c83ff5ca6e8d9be79698d2ff
