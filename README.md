@@ -87,7 +87,8 @@ User → Routes → Controllers → Models → Database\
 
 ``` bash
 git clone https://github.com/iniya-elango29/lib-management.git
-cd libmanagement
+cd lib-management
+Replace your mysql user password in db.js and setup-db.js file
 npm install
 node backend/config/setup-db.js
 node backend/server.js
