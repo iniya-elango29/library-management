@@ -86,7 +86,7 @@ User → Routes → Controllers → Models → Database\
 ## 🛠️ Installation & Setup
 
 ``` bash
-git clone https://github.com/iniya-elango29/libmanagement.git
+git clone https://github.com/iniya-elango29/lib-management.git
 cd libmanagement
 npm install
 node backend/config/setup-db.js
